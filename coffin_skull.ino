@@ -8,7 +8,7 @@
 
 //#define HAS_DEBUG1
 
-#define  HAS_MP3_JAW
+//#define  HAS_MP3_JAW
 
 #define HAS_CMD
 
@@ -21,13 +21,13 @@
 
 #endif
 ///////// PINS 
-#define  neckservoH_pin 9
-#define rxPin 2
-#define txPin 3
-#define jawservo_pin 10
+#define  neckservoH_pin 10
+#define rxPin 19
+#define txPin 18
+#define jawservo_pin 9
 
-#define  EYE_R_LED_PIN 3
-#define  EYE_L_LED_PIN 4
+#define  EYE_R_LED_PIN 5
+#define  EYE_L_LED_PIN 6
 
 ///////////////////////////
 #define FADE_TIME 2000
@@ -41,8 +41,8 @@
 #define LED_DIR_DOWN -1
 ////
 boolean jawopen = false;
-#define jawclosedpos  30 
-#define jawopenpos   40 
+#define jawclosedpos  90
+#define jawopenpos   150 
 
 
 
@@ -92,7 +92,8 @@ void setup() {
 	serial_MP3.begin(38400);
 #endif
 
-
+  pinMode(EYE_L_LED_PIN,OUTPUT);
+  pinMode(EYE_R_LED_PIN,OUTPUT);
 
 	LedEyeL = LEDFader(EYE_L_LED_PIN);
 	LedEyeL.fade(255, FADE_TIME);
@@ -104,7 +105,9 @@ void setup() {
 	neckservoH.write(90, 20, true); // set the intial position of the servo, as fast as possible, wait until done
 	jawservo.attach(jawservo_pin);  // attaches the servo on pin 9 to the servo object
  
-	jawservo.write(90,20,true); // set the intial position of the servo, as fast as possible, wait until done
+  jawservo.write(jawopenpos,20,true); // set the intial position of the servo, as fast as possible, wait until done
+  jawservo.write(jawclosedpos,20,true); // set the intial position of the servo, as fast as possible, wait until done
+
 //	jawservo.write(jawopenpos, 5, true); // set the intial position of the servo, as fast as possible, wait until done
 
 
@@ -144,7 +147,7 @@ void ledloop() {
 	{
 
 
-		LedEyeR.update();
+		LedEyeL.update();
 
 
 		// LED no longer fading, switch direction
@@ -187,7 +190,7 @@ byte do_wakeup_loop() {
 
 
 	int curposH = -1;
-	int val = LOOK_MID + 80;
+	int val = LOOK_MID  -80;
 	switch (loopstatus)
 	{
 	case LOOP_START:
@@ -340,18 +343,18 @@ byte do_talk_loop() {
 
 		if (!jawopen) {
 
-			jawservo.write(jawclosedpos, 30, false); // set the intial position of the servo, as fast as possible, wait until done
+			jawservo.write(jawclosedpos); // set the intial position of the servo, as fast as possible, wait until done
 			jawopen = true;
 		}
 		else {
-			jawservo.write(jawopenpos, 30, false); // set the intial position of the servo, as fast as possible, wait until done
+			jawservo.write(jawopenpos); // set the intial position of the servo, as fast as possible, wait until done
 			jawopen = false;
 		}
 
-		if ((start_loop_time + 5000) < millis()) {
-			jawservo.write(jawclosedpos, 30, false);
-			loopstatus = LOOP_FINISH;
-		}
+	//	if ((start_loop_time + 5000) < millis()) {
+	//		jawservo.write(jawclosedpos, 30, false);
+	//		loopstatus = LOOP_FINISH;
+		
 
 
 		while (serial_MP3.available()) {
