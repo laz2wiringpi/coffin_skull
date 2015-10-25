@@ -10,6 +10,9 @@
 
 #define  HAS_MP3_JAW
 
+#define S_TRACK 1
+#define T_TRACK 13
+
 #define HAS_CMD
 
 #ifdef HAS_SoftSer
@@ -80,7 +83,8 @@ int neckValsH[totalneckseqcount] = { 0x2050, 0x206E };
 
 
 byte neckseqcount = 0;
-
+ int track = S_TRACK;
+ 
 void setup() {
 #ifdef HAS_CMD
 	Serial.begin(38400);
@@ -91,10 +95,11 @@ void setup() {
 #ifdef HAS_MUSIC
 	serial_MP3.begin(38400);
 #endif
+ 
 
   pinMode(EYE_L_LED_PIN,OUTPUT);
   pinMode(EYE_R_LED_PIN,OUTPUT);
-
+  pinMode(A3,INPUT);
 	LedEyeL = LEDFader(EYE_L_LED_PIN);
 	LedEyeL.fade(255, FADE_TIME);
 
@@ -114,6 +119,7 @@ void setup() {
 	loopstatus = LOOP_START;
 	delay(5000);
 	start_loop_time = millis();
+ 
 }
 
 
@@ -241,9 +247,13 @@ byte do_talk_loop() {
 	case LOOP_START:
 		// look to the right 
 #ifdef HAS_MUSIC
-
+  //serial_MP3.write('F');
 		serial_MP3.write('t');
-		serial_MP3.write(1);
+	  track++;
+    if (track > T_TRACK ){
+    track = S_TRACK;
+    }
+		serial_MP3.write(track);
 
 #endif
 
@@ -277,17 +287,17 @@ byte do_talk_loop() {
 		{
 		 
 	 
-			case	300 ... 1000:
+			case	600 ... 1000:
 				jawservo.write(jawopenpos);
-				delay(15);
+				delay(3);
 				break;
 
 		default:
 			jawservo.write(jawclosedpos);
-			delay(10);
+			delay(3);
 			break;
 		}
-		jawservo.write(valMp3);
+	//	jawservo.write(valMp3);
 
 	 
 
@@ -403,7 +413,10 @@ byte do_sitdown_loop() {
  	Serial.print(pr_close);
 	Serial.println('p');
 #endif
-
+    LedEyeR.enabled = false;
+    LedEyeL.enabled = false;
+        LedEyeR.set_value(0);
+       LedEyeL.set_value(0);
 	return 	LOOP_FINISH;
 
 }
@@ -426,6 +439,8 @@ byte do_sleep_loop() {
 		neckservoH.write(val, LOOK_RIGHT_SPEED, false);
 		LedEyeR.enabled = false;
 		LedEyeL.enabled = false;
+        LedEyeR.set_value(0);
+       LedEyeL.set_value( 0);
 		loopstatus = LOOP_RUN;
 
 		break;
@@ -738,7 +753,7 @@ void serialEventfromcmdboard() {
 		}
 
 
-#ifdef DEBUG
+#ifdef DEBUG1
 		Serial.print("NEW otherboard :  ");
 		Serial.println(inChar);
 #endif
