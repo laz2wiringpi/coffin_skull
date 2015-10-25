@@ -8,7 +8,7 @@
 
 //#define HAS_DEBUG1
 
-//#define  HAS_MP3_JAW
+#define  HAS_MP3_JAW
 
 #define HAS_CMD
 
