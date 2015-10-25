@@ -196,7 +196,7 @@ byte do_wakeup_loop() {
 
 
 	int curposH = -1;
-	int val = LOOK_MID  -80;
+	int val = LOOK_MID  -60;
 	switch (loopstatus)
 	{
 	case LOOP_START:
